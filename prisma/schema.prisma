@@ -1,0 +1,94 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SectorAnalysis {
+  id            String   @id @default(cuid())
+  userId        String
+  sectorName    String
+  status        String
+
+  fullReport    String   @db.Text
+
+  subSectors    SubSector[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model SubSector {
+  id                String   @id @default(cuid())
+  sectorAnalysisId  String
+  sectorAnalysis    SectorAnalysis @relation(fields: [sectorAnalysisId], references: [id])
+
+  name              String
+  summary           String   @db.Text
+  status            String
+
+  stocks            Stock[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Stock {
+  id            String   @id @default(cuid())
+  subSectorId   String
+  subSector     SubSector @relation(fields: [subSectorId], references: [id])
+
+  companyName   String
+  ticker        String?
+  rank          Int
+
+  preliminaryNotes  String   @db.Text
+
+  deepAnalysis  StockAnalysis?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model StockAnalysis {
+  id            String   @id @default(cuid())
+  stockId       String   @unique
+  stock         Stock    @relation(fields: [stockId], references: [id])
+
+  status        String
+
+  rawAnalysis   String   @db.Text
+  judgeReview   String   @db.Text
+
+  insights      Json
+
+  attemptCount  Int      @default(1)
+  failureReason String?  @db.Text
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model JobStatus {
+  id            String   @id @default(cuid())
+  jobId         String   @unique
+  jobType       String
+
+  relatedId     String
+  status        String
+
+  progress      Int      @default(0)
+  errorMessage  String?  @db.Text
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
