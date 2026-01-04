@@ -1,16 +1,42 @@
-**Task for Claude Code:**
-*"Create AI client utilities for making Anthropic API calls. Include:
+/**
+ * AI Prompt Templates
+ *
+ * This file contains all prompt templates for the different AI tasks:
+ * - Sector research (with web_search)
+ * - Individual stock deep analysis (with web_search)
+ * - Quality review/judging
+ * - Formatting raw analysis into structured insights
+ */
 
-1. A function to run sector research with web_search enabled
-2. A function to run individual stock deep analysis with web_search
-3. A function to judge analysis quality
-4. A function to format raw analysis into structured insights
-Each function should handle streaming, error handling, and token usage tracking."*
+interface SectorResearchParams {
+  sectorName: string;
+}
 
+interface StockAnalysisParams {
+  companyName: string;
+  ticker: string | null;
+  subSectorName: string;
+  attemptNumber: number;
+}
 
-```tsx
-// SECTOR RESEARCH PROMPT
-const SECTOR_RESEARCH_PROMPT = `You are a professional equity research analyst conducting sector-wide investment research.
+interface JudgeReviewParams {
+  companyName: string;
+  attemptNumber: number;
+  rawAnalysis: string;
+}
+
+interface FormatInsightsParams {
+  companyName: string;
+  approvedAnalysis: string;
+  judgeReview: string;
+}
+
+/**
+ * SECTOR RESEARCH PROMPT
+ * Used to identify high-potential sub-sectors and companies within a given sector
+ */
+export function getSectorResearchPrompt({ sectorName }: SectorResearchParams): string {
+  return `You are a professional equity research analyst conducting sector-wide investment research.
 
 Analyze the **${sectorName}** sector to identify the most promising investment opportunities for a 5-10 year investment horizon.
 
@@ -68,7 +94,7 @@ For each sub-sector, use this exact structure:
 - Highlight both opportunities AND risks
 - Use specific metrics and data points when available
 - If a company is private, note "Private" instead of ticker
-- Focus on long-term sustainable competitive advantages`;
+- Focus on long-term sustainable competitive advantages
 
 ## Output Completeness
 
@@ -77,10 +103,20 @@ For each sub-sector, you must provide:
 - 5-15 companies ranked 1-10
 - Each company: 1-2 substantive paragraphs (minimum 100 words each)
 
-Do not artificially extend or compress your analysis. Write what's needed to be thorough.
+Do not artificially extend or compress your analysis. Write what's needed to be thorough.`;
+}
 
-// STOCK DEEP ANALYSIS PROMPT
-const STOCK_ANALYSIS_PROMPT = `You are a senior equity research analyst preparing an in-depth investment report on **${companyName}** ${ticker ? `(${ticker})` : '(Private Company)'}.
+/**
+ * STOCK DEEP ANALYSIS PROMPT
+ * Used for in-depth analysis of individual stocks
+ */
+export function getStockAnalysisPrompt({
+  companyName,
+  ticker,
+  subSectorName,
+  attemptNumber,
+}: StockAnalysisParams): string {
+  return `You are a senior equity research analyst preparing an in-depth investment report on **${companyName}** ${ticker ? `(${ticker})` : '(Private Company)'}.
 
 This analysis is part of research on the **${subSectorName}** sub-sector. This is attempt #${attemptNumber}${attemptNumber > 1 ? ' - please vary your research approach and dig deeper into areas that may have been insufficient previously.' : ''}.
 
@@ -91,7 +127,7 @@ This analysis is part of research on the **${subSectorName}** sub-sector. This i
 Weight your analysis across these dimensions:
 - **Business Quality (40%)**: Moat durability, unit economics, capital allocation, management, execution consistency
 - **Industry Context (25%)**: Structural trends, competitive dynamics, disruption risks, regulatory environment
-- **Financial Health (20%)**: Balance sheet strength, cash generation quality, performance through cycles  
+- **Financial Health (20%)**: Balance sheet strength, cash generation quality, performance through cycles
 - **Valuation (15%)**: Historical ranges, peer comparison, multiple methodologies
 
 This is a long-term investment analysis (5-10 year horizon). Prioritize depth over breadth.
@@ -158,7 +194,7 @@ This is a long-term investment analysis (5-10 year horizon). Prioritize depth ov
 
 **Scenario Analysis**
 - Bull case: [assumptions and target]
-- Base case: [assumptions and target]  
+- Base case: [assumptions and target]
 - Bear case: [assumptions and target]
 - Probability weight if useful
 
@@ -174,6 +210,7 @@ This is a long-term investment analysis (5-10 year horizon). Prioritize depth ov
 - Rate the quality/availability of data used
 - Note specific gaps or limitations in your analysis
 - Identify what you don't know or can't assess reliably
+
 
 ## Research Approach
 
@@ -198,9 +235,18 @@ Do not pad with filler. Do not cut corners to save tokens.
 ## Output Format
 
 Write in a professional research report style with clear section headers. Use bullet points, tables, and structured formatting for readability. Include specific data points and calculations where relevant.`;
+}
 
-// JUDGE REVIEW PROMPT
-const JUDGE_PROMPT = `You are a senior research director reviewing an analyst's stock report for quality assurance before publication.
+/**
+ * JUDGE REVIEW PROMPT
+ * Used to evaluate the quality of stock analysis before approval
+ */
+export function getJudgeReviewPrompt({
+  companyName,
+  attemptNumber,
+  rawAnalysis,
+}: JudgeReviewParams): string {
+  return `You are a senior research director reviewing an analyst's stock report for quality assurance before publication.
 
 ## Report to Review
 
@@ -249,6 +295,7 @@ Thoroughly assess this analysis across these dimensions:
 - Are conviction and confidence scores justified?
 - Does the analyst identify what they don't know?
 
+
 ## Your Decision
 
 Provide your evaluation in this format:
@@ -274,9 +321,18 @@ Provide your evaluation in this format:
 - **REJECTED**: Significant gaps in research, factual issues, or superficial analysis that wouldn't help an investor. Needs material improvement.
 
 Be tough but fair. We need high-quality research, not perfection.`;
+}
 
-// FORMAT INSIGHTS PROMPT
-const FORMAT_PROMPT = `You are extracting structured data from an approved investment analysis for display in a dashboard.
+/**
+ * FORMAT INSIGHTS PROMPT
+ * Used to extract structured data from approved analysis for dashboard display
+ */
+export function getFormatInsightsPrompt({
+  companyName,
+  approvedAnalysis,
+  judgeReview,
+}: FormatInsightsParams): string {
+  return `You are extracting structured data from an approved investment analysis for display in a dashboard.
 
 ## Approved Analysis
 
@@ -348,21 +404,4 @@ Extract key insights and format them into a structured JSON object matching this
 - **catalysts**: 3-5 near-term events that could drive stock performance (earnings, product launches, regulatory decisions, etc.)
 
 Return ONLY the JSON object, no additional text.`;
-```
-
-Add after `Output Completess` for both prompts, if the length is consistently unnecessarily long
-
-```python
-## Length Guidance
-
-- Comprehensive does not mean verbose
-- Use bullet points, tables, and structured formatting for clarity
-- If you find yourself exceeding ~20,000 words, you may be including unnecessary detail
-- If you're under ~3,000 words, you're likely being too superficial
-```
-
-**What this creates:**
-
-- `/src/lib/ai/client.ts` - Anthropic API wrapper
-- `/src/lib/ai/prompts.ts` - Prompt templates
-- `/src/lib/ai/streaming.ts` - SSE streaming utilities
+}
