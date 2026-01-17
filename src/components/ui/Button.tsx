@@ -1,3 +1,10 @@
+/**
+ * Flexible button component with optional left icon, text, and right icon.
+ * Variants: primary, subtle, outline, ghost, disabled
+ * States: default, hover, loading (with spinner)
+ * Renders as <button> or <a> depending on href prop
+ */
+
 'use client';
 
 import * as React from 'react';
