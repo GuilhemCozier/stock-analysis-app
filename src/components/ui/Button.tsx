@@ -8,7 +8,7 @@
 'use client';
 
 import * as React from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Download, Search, ChevronRight, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ButtonProps {
@@ -164,6 +164,61 @@ export function Button({
     >
       {content}
     </button>
+  );
+}
+
+/**
+ * Preview component for Visual Editor
+ * This default export allows Cursor's Visual Editor to render the component
+ */
+export default function ButtonPreview() {
+  return (
+    <div className="p-8 space-y-8 bg-neutral-50 min-h-screen">
+      <div className="space-y-4">
+        <h2 className="font-sans text-xl font-semibold text-neutral-900">Variants</h2>
+        <div className="flex flex-wrap gap-4">
+          <Button variant="primary">Primary</Button>
+          <Button variant="subtle">Subtle</Button>
+          <Button variant="outline">Outline</Button>
+          <Button variant="ghost">Ghost</Button>
+          <Button variant="disabled">Disabled</Button>
+        </div>
+      </div>
+      
+      <div className="space-y-4">
+        <h2 className="font-sans text-xl font-semibold text-neutral-900">With Icons</h2>
+        <div className="flex flex-wrap gap-4">
+          <Button leftIcon={<Download className="size-5" />}>With Left Icon</Button>
+          <Button rightIcon={<ChevronRight className="size-5" />}>With Right Icon</Button>
+          <Button 
+            leftIcon={<Search className="size-5" />}
+            rightIcon={<ChevronRight className="size-5" />}
+          >
+            Both Icons
+          </Button>
+        </div>
+      </div>
+      
+      <div className="space-y-4">
+        <h2 className="font-sans text-xl font-semibold text-neutral-900">States</h2>
+        <div className="flex flex-wrap gap-4">
+          <Button>Default</Button>
+          <Button disabled>Disabled</Button>
+          <Button loading>Loading</Button>
+          <Button leftIcon={<Star className="size-5" />} loading>
+            Loading with Icon
+          </Button>
+        </div>
+      </div>
+      
+      <div className="space-y-4">
+        <h2 className="font-sans text-xl font-semibold text-neutral-900">Icon Only</h2>
+        <div className="flex flex-wrap gap-4">
+          <Button leftIcon={<Download className="size-5" />} variant="primary" aria-label="Download" />
+          <Button leftIcon={<Search className="size-5" />} variant="outline" aria-label="Search" />
+        </div>
+      </div>
+    </div>
   );
 }
 
