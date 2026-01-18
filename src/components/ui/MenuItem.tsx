@@ -2,12 +2,13 @@
  * MenuItem component - Flexible horizontal button layout for menu items
  * Supports optional left icon, left text, right text, and right icon
  * States: default, hover, selected, disabled
+ * Variants: default, MenuHeader (for collapsible menu sections)
  */
 
 'use client';
 
 import * as React from 'react';
-import { LucideIcon } from 'lucide-react';
+import { LucideIcon, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface MenuItemProps {
@@ -17,9 +18,13 @@ interface MenuItemProps {
   rightText?: string;
   rightIcon?: LucideIcon;
   
+  // Variant
+  variant?: 'default' | 'MenuHeader';
+  
   // States
   disabled?: boolean;
   selected?: boolean;
+  expanded?: boolean; // For MenuHeader variant - controls chevron rotation
   
   // Interaction
   onClick?: () => void;
@@ -36,8 +41,10 @@ const MenuItem = React.forwardRef<HTMLButtonElement, MenuItemProps>(
       leftText,
       rightText,
       rightIcon: RightIcon,
+      variant = 'default',
       disabled = false,
       selected = false,
+      expanded = false,
       onClick,
       paddingX = 'md',
       className,
@@ -50,6 +57,14 @@ const MenuItem = React.forwardRef<HTMLButtonElement, MenuItemProps>(
       md: 'px-4',
       lg: 'px-5',
     };
+
+    // For MenuHeader variant: use ChevronRight as default right icon if none provided
+    const isMenuHeader = variant === 'MenuHeader';
+    const effectiveRightIcon: LucideIcon | undefined = isMenuHeader && !RightIcon ? ChevronRight : RightIcon;
+    const showRightIcon = effectiveRightIcon !== undefined;
+    
+    // Use capitalized name for JSX component rendering
+    const RightIconComponent = effectiveRightIcon;
 
     // Handle click - prevent if disabled
     const handleClick = () => {
@@ -78,10 +93,14 @@ const MenuItem = React.forwardRef<HTMLButtonElement, MenuItemProps>(
       'rounded-md', // Border radius
       'transition-colors duration-150', // Transitions
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2', // Focus state
-      // Default state
-      !selected && !disabled && 'bg-transparent text-neutral-700',
+      // Add group class for MenuHeader variant to enable group-hover on child icon
+      isMenuHeader && 'group',
+      // Default state - MenuHeader variant uses dimmer color
+      !selected && !disabled && !isMenuHeader && 'bg-transparent text-neutral-700',
+      !selected && !disabled && isMenuHeader && 'bg-transparent text-neutral-500',
       // Hover state (only when not disabled and not selected)
-      !selected && !disabled && 'hover:bg-neutral-100 hover:text-neutral-900',
+      !selected && !disabled && !isMenuHeader && 'hover:bg-neutral-100 hover:text-neutral-900',
+      !selected && !disabled && isMenuHeader && 'hover:bg-neutral-100 hover:text-neutral-700',
       // Selected state
       selected && !disabled && 'bg-primary/10 text-primary',
       // Disabled state
@@ -108,7 +127,10 @@ const MenuItem = React.forwardRef<HTMLButtonElement, MenuItemProps>(
             />
           )}
           {leftText && (
-            <span className="font-sans text-base">
+            <span className={cn(
+              'font-sans',
+              isMenuHeader ? 'text-sm' : 'text-base'
+            )}>
               {leftText}
             </span>
           )}
@@ -121,9 +143,20 @@ const MenuItem = React.forwardRef<HTMLButtonElement, MenuItemProps>(
               {rightText}
             </span>
           )}
-          {RightIcon && (
-            <RightIcon 
-              className="size-5"
+          {showRightIcon && RightIconComponent && (
+            <RightIconComponent 
+              className={cn(
+                'size-5',
+                // MenuHeader variant: opacity and rotation transitions
+                isMenuHeader && [
+                  'opacity-0 transition-[transform,opacity] duration-200',
+                  'group-hover:opacity-100',
+                  !expanded && '-rotate-90',
+                  expanded && 'rotate-0'
+                ],
+                // Default variant: only rotation transition if needed
+                !isMenuHeader && 'transition-transform duration-200'
+              )}
               aria-hidden="true" 
             />
           )}
