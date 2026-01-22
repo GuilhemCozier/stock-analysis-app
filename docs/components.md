@@ -16,3 +16,4 @@ Examples (to be replaced by actual component quick descriptions):
 - **TopBar** - Horizontal container with left and right sections, each containing mapped Button instances configured via props
 - **ReportPreview** - Full-page height container (Claude Artifacts-style) with TopBar and formatted markdown body, displayed on right side of screen
 - **StockSelectionCard** - Card displaying company name/symbol, collapsible description (3-10 lines), and selection state with status badge and checkbox
+- **StockReportSummary** - Displays stock analysis summary with rank/company title, key metrics (5Y ROI, price action), research status, and report access button
