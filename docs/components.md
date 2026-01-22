@@ -12,3 +12,5 @@ Examples (to be replaced by actual component quick descriptions):
 - **ChatInputField** - Vertical stack with textarea input and button row (analysis type selector dropdown + primary launch button)
 - **ResearchStatus** - Bordered vertical stack showing research stage (e.g., "Initiating Research", "Research Complete", "Error") and progress metadata (sources count + duration)
 - **SubSectorLauncher** - Horizontal container with sub-sector info (rank, name, stock count, description with "Read more" link) and action button with multiple states (Prepare Research, Research Initiated, Analysing with progress, Writing Report, Auditing Report, Research Completed)
+- **SectorReportSummary** - Vertical stack displaying sector report title, summary text, ghost "Read Full Report" button, and list of SubSectorLauncher instances
+- **TopBar** - Horizontal container with left and right sections, each containing mapped Button instances configured via props
