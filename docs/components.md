@@ -14,3 +14,4 @@ Examples (to be replaced by actual component quick descriptions):
 - **SubSectorLauncher** - Horizontal container with sub-sector info (rank, name, stock count, description with "Read more" link) and action button with multiple states (Prepare Research, Research Initiated, Analysing with progress, Writing Report, Auditing Report, Research Completed)
 - **SectorReportSummary** - Vertical stack displaying sector report title, summary text, ghost "Read Full Report" button, and list of SubSectorLauncher instances
 - **TopBar** - Horizontal container with left and right sections, each containing mapped Button instances configured via props
+- **ReportPreview** - Full-page height container (Claude Artifacts-style) with TopBar and formatted markdown body, displayed on right side of screen
