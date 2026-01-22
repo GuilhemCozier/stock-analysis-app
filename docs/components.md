@@ -15,3 +15,4 @@ Examples (to be replaced by actual component quick descriptions):
 - **SectorReportSummary** - Vertical stack displaying sector report title, summary text, ghost "Read Full Report" button, and list of SubSectorLauncher instances
 - **TopBar** - Horizontal container with left and right sections, each containing mapped Button instances configured via props
 - **ReportPreview** - Full-page height container (Claude Artifacts-style) with TopBar and formatted markdown body, displayed on right side of screen
+- **StockSelectionCard** - Card displaying company name/symbol, collapsible description (3-10 lines), and selection state with status badge and checkbox
