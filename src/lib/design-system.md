@@ -552,6 +552,210 @@ const buttonVariants = cva(
 
 ---
 
+## Page Templates
+
+### **Analysis Page Layout**
+
+Analysis pages follow a consistent three-part structure designed for hierarchical navigation and focused content consumption.
+
+#### **Layout Structure**
+
+```tsx
+<div className="flex min-h-screen">
+  {/* 1. Left Sidebar */}
+  <aside className="w-64 border-r border-neutral-200 bg-white">
+    {/* Sidebar content */}
+  </aside>
+
+  {/* 2. Main Content Area */}
+  <main className="flex-1 px-4 py-8 md:px-8 md:py-12">
+    {/* 3. TopBar with Breadcrumbs */}
+    <TopBar leftButtons={breadcrumbButtons} rightButtons={actionButtons} />
+
+    {/* Main content stack */}
+    <div className="mt-6 space-y-6">
+      {/* Analysis content components go here */}
+    </div>
+  </main>
+</div>
+```
+
+#### **Component Breakdown**
+
+**1. Sidebar (Left)**
+- Fixed width: `w-64` (256px)
+- Contains navigation, filters, or contextual tools
+- Sticky positioning recommended: `sticky top-0 h-screen overflow-y-auto`
+
+**2. Main Content Area (Center)**
+- Flexible width: `flex-1`
+- Responsive padding: `px-4 py-8 md:px-8 md:py-12`
+- Vertical stack for diverse content: `space-y-6` or `space-y-8`
+
+**3. TopBar with Breadcrumb Navigation**
+- Always at the top of the main content area
+- Left side: Breadcrumb navigation using Ghost buttons
+- Right side: Page-level actions (Export, Share, etc.)
+
+#### **Breadcrumb Navigation Pattern**
+
+The TopBar's left button group displays a breadcrumb trail showing the page hierarchy. This allows users to navigate back to parent analyses.
+
+**Visual Pattern:**
+```
+[Parent 1] > [Parent 2] > [Current Page]
+```
+
+**Implementation:**
+
+```tsx
+import { ChevronRight } from 'lucide-react';
+import { TopBar, ButtonConfig } from '@/components/ui/TopBar';
+
+// Example: User navigates from "Cybersecurity" → "AI-Powered Cybersecurity"
+const breadcrumbs = [
+  { label: 'Cybersecurity', href: '/analysis/cybersecurity' },
+  { label: 'AI-Powered Cybersecurity', href: '/analysis/ai-cybersecurity' }, // Current page
+];
+
+const breadcrumbButtons: ButtonConfig[] = breadcrumbs.flatMap((crumb, index) => {
+  const isLast = index === breadcrumbs.length - 1;
+  const buttons: ButtonConfig[] = [
+    {
+      id: `breadcrumb-${index}`,
+      children: crumb.label,
+      variant: 'ghost',
+      onClick: isLast ? undefined : () => router.push(crumb.href), // Current page not clickable
+      disabled: isLast, // Disable current page button
+    },
+  ];
+
+  // Add chevron separator after each button except the last
+  if (!isLast) {
+    buttons.push({
+      id: `separator-${index}`,
+      children: <ChevronRight className="size-4 text-neutral-400" />,
+      variant: 'ghost',
+      disabled: true,
+      'aria-hidden': 'true', // Decorative separator
+    });
+  }
+
+  return buttons;
+});
+
+// Usage
+<TopBar
+  leftButtons={breadcrumbButtons}
+  rightButtons={actionButtons}
+/>
+```
+
+**Key Behaviors:**
+- **Parent pages** are clickable Ghost buttons that navigate backwards
+- **Current page** is a disabled Ghost button (non-clickable)
+- **Chevron separators** (`>`) appear between breadcrumbs when there are 2+ items
+- Chevrons are decorative, non-interactive elements with `aria-hidden="true"`
+
+#### **Responsive Considerations**
+
+**Mobile (< 768px):**
+- Hide sidebar or convert to collapsible drawer
+- Breadcrumbs may truncate with ellipsis: `truncate max-w-[120px]`
+- Consider showing only the last parent + current page
+
+```tsx
+// Mobile breadcrumb truncation example
+<span className="inline-block max-w-[120px] truncate md:max-w-none">
+  {crumb.label}
+</span>
+```
+
+**Desktop (≥ 768px):**
+- Full sidebar visible
+- Complete breadcrumb trail shown
+- Ample spacing for content
+
+#### **Complete Example**
+
+```tsx
+// app/analysis/[sector]/page.tsx
+'use client';
+
+import { TopBar } from '@/components/ui/TopBar';
+import { Sidebar } from '@/components/ui/Sidebar';
+import { ChevronRight, Download } from 'lucide-react';
+
+export default function SectorAnalysisPage({ params }) {
+  const breadcrumbButtons = [
+    {
+      id: 'breadcrumb-home',
+      children: 'All Sectors',
+      variant: 'ghost' as const,
+      onClick: () => router.push('/analysis'),
+    },
+    {
+      id: 'separator-0',
+      children: <ChevronRight className="size-4 text-neutral-400" />,
+      variant: 'ghost' as const,
+      disabled: true,
+    },
+    {
+      id: 'breadcrumb-current',
+      children: params.sector,
+      variant: 'ghost' as const,
+      disabled: true, // Current page
+    },
+  ];
+
+  const actionButtons = [
+    {
+      id: 'export',
+      children: 'Export Report',
+      leftIcon: <Download className="size-5" />,
+      variant: 'outline' as const,
+      onClick: handleExport,
+    },
+  ];
+
+  return (
+    <div className="flex min-h-screen">
+      {/* Sidebar */}
+      <Sidebar />
+
+      {/* Main Content */}
+      <main className="flex-1 px-4 py-8 md:px-8 md:py-12">
+        <TopBar
+          leftButtons={breadcrumbButtons}
+          rightButtons={actionButtons}
+        />
+
+        {/* Content Stack */}
+        <div className="mt-6 space-y-6">
+          <SectorOverviewCard />
+          <SubsectorGrid />
+          <TopStocksTable />
+        </div>
+      </main>
+    </div>
+  );
+}
+```
+
+#### **Accessibility Notes**
+
+- **Breadcrumb navigation** should use semantic HTML when possible:
+  ```tsx
+  <nav aria-label="Breadcrumb">
+    <TopBar leftButtons={breadcrumbButtons} />
+  </nav>
+  ```
+- **Chevron separators** must have `aria-hidden="true"` (decorative only)
+- **Current page** breadcrumb should have `aria-current="page"`
+- **Keyboard navigation** works natively with Button components (Tab/Enter)
+
+---
+
 ## Quick Reference
 
 ### **File Structure**

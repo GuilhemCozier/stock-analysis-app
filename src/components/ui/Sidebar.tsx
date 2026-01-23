@@ -66,7 +66,7 @@ export default function Sidebar({ recentAnalyses = [], onNavigate }: SidebarProp
         'border-r border-neutral-200',
         'bg-neutral-50',
         'transition-all duration-300',
-        isCollapsed ? 'w-fit' : 'w-full'
+        isCollapsed ? 'w-fit' : 'w-[290px]'
       )}
       aria-label="Navigation sidebar"
     >
@@ -102,7 +102,7 @@ export default function Sidebar({ recentAnalyses = [], onNavigate }: SidebarProp
           <MenuItem
             leftIcon={Plus}
             leftText={!isCollapsed ? 'New Analysis' : undefined}
-            onClick={() => onNavigate?.('/new-analysis')}
+            onClick={() => onNavigate?.('/')}
           />
         </div>
         <div className={cn(isCollapsed && 'w-fit')}>
