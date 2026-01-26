@@ -5,7 +5,7 @@ import { createJobStatus } from '@/lib/queue/jobStatus';
 import { startAnalysisSchema } from '@/lib/validation/api';
 
 /**
- * POST /api/analysis/start
+ * POST /api/sector/start
  *
  * Start a new sector analysis
  * - Validates sector name
@@ -45,11 +45,12 @@ export async function POST(request: NextRequest) {
     });
 
     // Add job to queue
-    const job = await sectorResearchQueue.add('sector-research', {
+    // BullMQ job name typing can be overly strict depending on version; cast for compatibility.
+    const job = await sectorResearchQueue.add('sector-research' as any, {
       sectorAnalysisId: sectorAnalysis.id,
       userId,
       sectorName,
-    });
+    } as any);
 
     // Create JobStatus record for tracking
     await createJobStatus(job.id!, 'sector_research', sectorAnalysis.id);

@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 
 /**
- * GET /api/analysis/[id]/stream
+ * GET /api/sector/[id]/stream
  *
  * Server-Sent Events (SSE) endpoint for real-time job updates
  * - Streams progress updates every 2 seconds

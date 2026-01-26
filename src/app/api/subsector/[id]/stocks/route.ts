@@ -20,6 +20,16 @@ export async function GET(
     const subSector = await prisma.subSector.findUnique({
       where: { id },
       include: {
+        sectorAnalysis: {
+          select: {
+            id: true,
+            sectorName: true,
+            subSectors: {
+              select: { id: true },
+              orderBy: { createdAt: 'asc' },
+            },
+          },
+        },
         stocks: {
           orderBy: { rank: 'asc' },
           include: {
@@ -39,6 +49,9 @@ export async function GET(
       );
     }
 
+    const subSectorRank =
+      subSector.sectorAnalysis.subSectors.findIndex((s) => s.id === subSector.id) + 1;
+
     return NextResponse.json(
       {
         success: true,
@@ -47,6 +60,11 @@ export async function GET(
           name: subSector.name,
           summary: subSector.summary,
           status: subSector.status,
+          subSectorRank,
+          sector: {
+            id: subSector.sectorAnalysis.id,
+            name: subSector.sectorAnalysis.sectorName,
+          },
           stocks: subSector.stocks,
         },
       },

@@ -13,12 +13,14 @@ export interface SectorReportSummaryProps {
   title: string;
   summary: string;
   onReadFullReport: () => void;
+  onPrepareResearch?: (subSectorId: string) => void;
   subSectors: Array<{
     id: string;
     rank: number;
     name: string;
     stockCount: number;
-    description: string;
+    description: string; // Description headline (one-line)
+    longDescription?: string; // Full description text (shown when expanded)
     status: 'pending' | 'initiated' | 'analyzing' | 'writing' | 'auditing' | 'completed';
     progress?: number;
   }>;
@@ -38,6 +40,7 @@ export function SectorReportSummary({
   title,
   summary,
   onReadFullReport,
+  onPrepareResearch,
   subSectors,
 }: SectorReportSummaryProps) {
   // Map status to SubSectorLauncher state
@@ -88,7 +91,9 @@ export function SectorReportSummary({
             name={subSector.name}
             stockCount={subSector.stockCount}
             description={subSector.description}
+            longDescription={subSector.longDescription}
             state={mapStatusToState(subSector.status)}
+            onLaunch={() => onPrepareResearch?.(subSector.id)}
             progress={
               subSector.progress !== undefined && subSector.status === 'analyzing'
                 ? {

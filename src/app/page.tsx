@@ -4,21 +4,31 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/ui/Sidebar';
 import { ChatInputField } from '@/components/ui/ChatInputField';
-import type { RecentAnalysis } from '@/components/ui/Sidebar';
+import { useRecentAnalyses, useStartSectorAnalysis } from '@/hooks/useAnalyses';
 
 export default function HomePage() {
   const router = useRouter();
-
-  // TODO: Fetch recent analyses from API
-  const recentAnalyses: RecentAnalysis[] = [];
+  const { recentAnalyses } = useRecentAnalyses();
+  const { startAnalysis, isLoading: isStarting } = useStartSectorAnalysis();
 
   const handleNavigate = (path: string) => {
     router.push(path);
   };
 
-  const handleLaunch = (input: string, analysisType: 'sector' | 'stock') => {
-    // TODO: Implement launch logic - start analysis and navigate to results
-    console.log('Launch analysis:', { input, analysisType });
+  const handleLaunch = async (input: string, analysisType: 'sector' | 'stock') => {
+    if (analysisType === 'sector') {
+      try {
+        const result = await startAnalysis(input);
+        if (result?.id) {
+          router.push(`/sector/${result.id}`);
+        }
+      } catch (error) {
+        console.error('Failed to start sector analysis:', error);
+      }
+    } else {
+      // TODO: Implement individual stock analysis
+      console.log('Stock analysis not yet implemented:', input);
+    }
   };
 
   return (

@@ -6,7 +6,7 @@
 'use client';
 
 import * as React from 'react';
-import { Plus, Factory, Store, PanelLeft } from 'lucide-react';
+import { Plus, Factory, Store, PanelLeft, Database } from 'lucide-react';
 import { Button } from './Button';
 import MenuItem from './MenuItem';
 import { cn } from '@/lib/utils';
@@ -21,13 +21,14 @@ export interface RecentAnalysis {
 export interface SidebarProps {
   recentAnalyses?: RecentAnalysis[];
   onNavigate?: (path: string) => void;
+  forceCollapsed?: boolean; // External control to force collapse
 }
 
 const SIDEBAR_COLLAPSE_KEY = 'sidebar-collapsed';
 
-export default function Sidebar({ recentAnalyses = [], onNavigate }: SidebarProps) {
+export default function Sidebar({ recentAnalyses = [], onNavigate, forceCollapsed }: SidebarProps) {
   // Initialize collapse state from localStorage or default to false
-  const [isCollapsed, setIsCollapsed] = React.useState<boolean>(() => {
+  const [internalCollapsed, setInternalCollapsed] = React.useState<boolean>(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem(SIDEBAR_COLLAPSE_KEY);
       return stored === 'true';
@@ -35,17 +36,23 @@ export default function Sidebar({ recentAnalyses = [], onNavigate }: SidebarProp
     return false;
   });
 
+  // Use forceCollapsed if provided, otherwise use internal state
+  const isCollapsed = forceCollapsed !== undefined ? forceCollapsed : internalCollapsed;
+
   const [isRecentsExpanded, setIsRecentsExpanded] = React.useState<boolean>(true);
 
-  // Persist collapse state to localStorage
+  // Persist collapse state to localStorage (only when not force-controlled)
   React.useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(SIDEBAR_COLLAPSE_KEY, String(isCollapsed));
+    if (typeof window !== 'undefined' && forceCollapsed === undefined) {
+      localStorage.setItem(SIDEBAR_COLLAPSE_KEY, String(internalCollapsed));
     }
-  }, [isCollapsed]);
+  }, [internalCollapsed, forceCollapsed]);
 
   const toggleCollapse = () => {
-    setIsCollapsed((prev) => !prev);
+    // Only allow toggle if not force-controlled
+    if (forceCollapsed === undefined) {
+      setInternalCollapsed((prev) => !prev);
+    }
   };
 
   const toggleRecents = () => {
@@ -117,6 +124,13 @@ export default function Sidebar({ recentAnalyses = [], onNavigate }: SidebarProp
             leftIcon={Store}
             leftText={!isCollapsed ? 'Stocks' : undefined}
             onClick={() => onNavigate?.('/stocks')}
+          />
+        </div>
+        <div className={cn(isCollapsed && 'w-fit')}>
+          <MenuItem
+            leftIcon={Database}
+            leftText={!isCollapsed ? 'Database' : undefined}
+            onClick={() => onNavigate?.('/database')}
           />
         </div>
       </nav>

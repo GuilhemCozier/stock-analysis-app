@@ -67,14 +67,15 @@ export async function POST(
     });
 
     // Add stock analysis job to queue
-    const analysisJob = await stockAnalysisQueue.add('stock-analysis', {
+    // BullMQ job name typing can be overly strict depending on version; cast for compatibility.
+    const analysisJob = await stockAnalysisQueue.add('stock-analysis' as any, {
       stockId: id,
       stockAnalysisId: stockAnalysis.id,
       companyName: stock.companyName,
       ticker: stock.ticker || undefined,
       subSectorName: stock.subSector.name,
       attemptNumber: 1,
-    });
+    } as any);
 
     // Create JobStatus record for tracking
     await createJobStatus(analysisJob.id!, 'stock_analysis', id);

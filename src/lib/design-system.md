@@ -554,6 +554,23 @@ const buttonVariants = cva(
 
 ## Page Templates
 
+### **App Shell (Required on all pages)**
+
+All pages should use the same app shell layout with the `Sidebar` rendered on the left.
+
+```tsx
+import Sidebar from '@/components/ui/Sidebar';
+
+export default function Page() {
+  return (
+    <div className="flex min-h-screen">
+      <Sidebar />
+      <main className="flex-1">{/* Page content */}</main>
+    </div>
+  );
+}
+```
+
 ### **Analysis Page Layout**
 
 Analysis pages follow a consistent three-part structure designed for hierarchical navigation and focused content consumption.

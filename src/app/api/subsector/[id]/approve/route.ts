@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { stockRankingQueue, stockAnalysisQueue } from '@/lib/queue/config';
 import { createJobStatus } from '@/lib/queue/jobStatus';
+import { approveSubSectorSchema } from '@/lib/validation/api';
 
 /**
  * POST /api/subsector/[id]/approve
@@ -18,6 +19,28 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
+
+    // Parse and validate request body (optional)
+    let body: unknown = {};
+    try {
+      body = await request.json();
+    } catch {
+      // No body provided — that's fine.
+      body = {};
+    }
+
+    const validationResult = approveSubSectorSchema.safeParse(body);
+    if (!validationResult.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: validationResult.error.errors[0].message,
+        },
+        { status: 400 }
+      );
+    }
+
+    const { selectedStockIds } = validationResult.data;
 
     // Fetch subsector with stocks
     const subSector = await prisma.subSector.findUnique({
@@ -52,7 +75,7 @@ export async function POST(
 
     if (needsRanking) {
       // Trigger stock ranking job first
-      const rankingJob = await stockRankingQueue.add('stock-ranking', {
+      const rankingJob = await stockRankingQueue.add('stock-ranking' as any, {
         subSectorId: id,
         stocks: subSector.stocks.map((stock) => ({
           id: stock.id,
@@ -60,7 +83,7 @@ export async function POST(
           ticker: stock.ticker || undefined,
           preliminaryNotes: stock.preliminaryNotes,
         })),
-      });
+      } as any);
 
       await createJobStatus(rankingJob.id!, 'stock_ranking', id);
 
@@ -69,10 +92,22 @@ export async function POST(
         type: 'stock_ranking',
       });
     } else if (subSector.stocks.length > 0) {
-      // Stocks are already ranked, trigger analysis for top 5
-      const top5Stocks = subSector.stocks.slice(0, 5);
+      // Stocks are already ranked, trigger analysis for selected stocks (or top 5 if not provided)
+      const selectedSet = selectedStockIds ? new Set(selectedStockIds) : null;
 
-      for (const stock of top5Stocks) {
+      const selectedStocks =
+        selectedSet && selectedSet.size > 0
+          ? subSector.stocks.filter((s) => selectedSet.has(s.id))
+          : [];
+
+      // If selection was provided but none matched, fall back to top 5
+      const stocksToAnalyze =
+        selectedStocks.length > 0 ? selectedStocks : subSector.stocks.slice(0, 5);
+
+      // Enforce cap (even if client somehow sent more)
+      const cappedStocksToAnalyze = stocksToAnalyze.slice(0, 5);
+
+      for (const stock of cappedStocksToAnalyze) {
         // Create StockAnalysis record
         const stockAnalysis = await prisma.stockAnalysis.create({
           data: {
@@ -86,14 +121,14 @@ export async function POST(
         });
 
         // Add stock analysis job to queue
-        const analysisJob = await stockAnalysisQueue.add('stock-analysis', {
+        const analysisJob = await stockAnalysisQueue.add('stock-analysis' as any, {
           stockId: stock.id,
           stockAnalysisId: stockAnalysis.id,
           companyName: stock.companyName,
           ticker: stock.ticker || undefined,
           subSectorName: subSector.name,
           attemptNumber: 1,
-        });
+        } as any);
 
         await createJobStatus(analysisJob.id!, 'stock_analysis', stock.id);
 

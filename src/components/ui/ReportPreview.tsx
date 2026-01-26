@@ -7,14 +7,14 @@
 'use client';
 
 import * as React from 'react';
-import { X } from 'lucide-react';
+import { X, Copy } from 'lucide-react';
 import { TopBar } from './TopBar';
 import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
 
 export interface ReportPreviewProps {
   content: string;              // Markdown content to render
-  onCopy?: () => void;          // Handler for copy button click
+  onCopy?: () => void;          // Optional custom handler for copy button click
   onClose?: () => void;         // Handler for close button click
   className?: string;           // Additional Tailwind classes
 }
@@ -39,6 +39,19 @@ export function ReportPreview({
   onClose,
   className,
 }: ReportPreviewProps) {
+  const [copySuccess, setCopySuccess] = React.useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+      onCopy?.();
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err);
+    }
+  };
+
   return (
     <div className={cn('flex flex-col h-screen', className)}>
       {/* TopBar with action buttons */}
@@ -46,13 +59,14 @@ export function ReportPreview({
         rightButtons={[
           {
             id: 'copy',
-            children: 'Copy',
+            children: copySuccess ? 'Copied!' : 'Copy',
+            leftIcon: <Copy className="size-5" />,
             variant: 'outline',
-            onClick: onCopy,
+            onClick: handleCopy,
           },
           {
             id: 'close',
-            rightIcon: <X />,
+            children: <X className="size-5" />,
             variant: 'ghost',
             'aria-label': 'Close preview',
             onClick: onClose,
@@ -121,6 +135,35 @@ export function ReportPreview({
                 <blockquote className="border-l-4 border-neutral-300 pl-4 italic text-neutral-700 my-4">
                   {children}
                 </blockquote>
+              ),
+              hr: () => (
+                <hr className="border-t border-neutral-200 my-6" />
+              ),
+              table: ({ children }: { children?: React.ReactNode }) => (
+                <div className="overflow-hidden rounded-[6px] border border-neutral-200 my-4">
+                  <table className="w-full border-collapse">
+                    {children}
+                  </table>
+                </div>
+              ),
+              thead: ({ children }: { children?: React.ReactNode }) => (
+                <thead className="bg-neutral-50">{children}</thead>
+              ),
+              tbody: ({ children }: { children?: React.ReactNode }) => (
+                <tbody>{children}</tbody>
+              ),
+              tr: ({ children }: { children?: React.ReactNode }) => (
+                <tr className="border-b border-neutral-200 last:border-b-0">{children}</tr>
+              ),
+              th: ({ children }: { children?: React.ReactNode }) => (
+                <th className="px-4 py-2 text-left font-semibold text-neutral-900 border-b border-neutral-200">
+                  {children}
+                </th>
+              ),
+              td: ({ children }: { children?: React.ReactNode }) => (
+                <td className="px-4 py-2 text-neutral-900 font-serif text-md">
+                  {children}
+                </td>
               ),
             }}
           >

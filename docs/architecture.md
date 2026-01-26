@@ -1,4 +1,4 @@
-### Job Queue Flow
+## Job Queue Flow
 
 ```
 User Request
@@ -33,23 +33,34 @@ UI displays completed sub-sector → User approves next sub-sector
 
 ```
 
-### API Routes Structure
+## API Routes Structure
 
 ```
 /api/analysis
+  GET /list                - List all analyses (sector + stock) for sidebar
+
+/api/sector
   POST /start              - Initiate sector analysis
-  GET /[id]                - Get analysis status and data
-  GET /[id]/stream         - SSE endpoint for real-time updates
+  GET /[id]                - Get sector analysis status and data tree
+  GET /[id]/stream         - SSE endpoint for real-time job updates
 
 /api/subsector
-  POST /[id]/approve       - User approves sub-sector for analysis
-  GET /[id]/stocks         - Get stocks in sub-sector
+  POST /[id]/approve       - User approves sub-sector for deep analysis
+  GET /[id]/stocks         - Get all stocks in sub-sector
 
 /api/stock
+  GET /list                - List all stocks with completed analyses
   GET /[id]/analysis       - Get deep analysis for a stock
   POST /[id]/reanalyze     - Manually trigger analysis for non-top-5 stock
 
-/api/jobs
-  GET /[id]/status         - Get job status (for debugging)
+```
+
+## Frontend Routes
+
+```
+/                          - Home page (start new analysis)
+/database                  - View all past analyses
+/sector/[id]               - View sector analysis with sub-sectors
+/subsector/[id]            - View sub-sector with analyzed stocks
 
 ```

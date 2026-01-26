@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 
 /**
- * GET /api/analysis/[id]
+ * GET /api/sector/[id]
  *
  * Get sector analysis status and complete data tree
  * - Fetches SectorAnalysis with all sub-sectors and stocks

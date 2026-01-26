@@ -39,11 +39,12 @@ export const sectorResearchQueue = new Queue<SectorResearchJobData>(
   'sector-research',
   {
     ...baseQueueOptions,
+    // BullMQ typings differ across versions (e.g. `timeout`); cast for compatibility.
     defaultJobOptions: {
-      ...baseQueueOptions.defaultJobOptions,
+      ...(baseQueueOptions.defaultJobOptions as any),
       attempts: 2, // Only retry once for long-running jobs
       timeout: 15 * 60 * 1000, // 15 minute timeout
-    },
+    } as any,
   }
 );
 
@@ -52,11 +53,12 @@ export const stockAnalysisQueue = new Queue<StockAnalysisJobData>(
   'stock-analysis',
   {
     ...baseQueueOptions,
+    // BullMQ typings differ across versions (e.g. `timeout`); cast for compatibility.
     defaultJobOptions: {
-      ...baseQueueOptions.defaultJobOptions,
+      ...(baseQueueOptions.defaultJobOptions as any),
       attempts: 1, // No automatic retries - manual retry with variation
       timeout: 15 * 60 * 1000, // 15 minute timeout
-    },
+    } as any,
   }
 );
 
@@ -65,11 +67,12 @@ export const judgeReviewQueue = new Queue<JudgeReviewJobData>(
   'judge-review',
   {
     ...baseQueueOptions,
+    // BullMQ typings differ across versions (e.g. `timeout`); cast for compatibility.
     defaultJobOptions: {
-      ...baseQueueOptions.defaultJobOptions,
+      ...(baseQueueOptions.defaultJobOptions as any),
       attempts: 3,
       timeout: 5 * 60 * 1000, // 5 minute timeout
-    },
+    } as any,
   }
 );
 
@@ -78,11 +81,12 @@ export const formatInsightsQueue = new Queue<FormatInsightsJobData>(
   'format-insights',
   {
     ...baseQueueOptions,
+    // BullMQ typings differ across versions (e.g. `timeout`); cast for compatibility.
     defaultJobOptions: {
-      ...baseQueueOptions.defaultJobOptions,
+      ...(baseQueueOptions.defaultJobOptions as any),
       attempts: 3,
       timeout: 3 * 60 * 1000, // 3 minute timeout
-    },
+    } as any,
   }
 );
 
@@ -91,11 +95,12 @@ export const stockRankingQueue = new Queue<StockRankingJobData>(
   'stock-ranking',
   {
     ...baseQueueOptions,
+    // BullMQ typings differ across versions (e.g. `timeout`); cast for compatibility.
     defaultJobOptions: {
-      ...baseQueueOptions.defaultJobOptions,
+      ...(baseQueueOptions.defaultJobOptions as any),
       attempts: 3,
       timeout: 5 * 60 * 1000, // 5 minute timeout
-    },
+    } as any,
   }
 );
 

@@ -16,6 +16,10 @@ interface StockSelectionCardProps {
   description: string;
   isSelected: boolean;
   onToggleSelection: () => void;
+  statusLabel?: string;
+  statusTone?: 'info' | 'neutral' | 'warning' | 'success' | 'error';
+  showCheckbox?: boolean;
+  disabled?: boolean;
 }
 
 export function StockSelectionCard({
@@ -24,6 +28,10 @@ export function StockSelectionCard({
   description,
   isSelected,
   onToggleSelection,
+  statusLabel,
+  statusTone = 'neutral',
+  showCheckbox = true,
+  disabled = false,
 }: StockSelectionCardProps) {
   const [isExpanded, setIsExpanded] = React.useState(false);
 
@@ -78,31 +86,44 @@ export function StockSelectionCard({
         <span
           className={cn(
             'rounded-sm px-3 py-1 text-sm font-medium border',
-            isSelected
-              ? 'bg-info-bg text-info border-info/20'
-              : 'bg-neutral-100 text-neutral-600 border-neutral-200'
+            statusLabel
+              ? {
+                  info: 'bg-info-bg text-info border-info/20',
+                  neutral: 'bg-neutral-100 text-neutral-600 border-neutral-200',
+                  warning: 'bg-warning-bg text-warning border-warning/20',
+                  success: 'bg-success-bg text-success border-success/20',
+                  error: 'bg-error-bg text-error border-error/20',
+                }[statusTone]
+              : isSelected
+                ? 'bg-info-bg text-info border-info/20'
+                : 'bg-neutral-100 text-neutral-600 border-neutral-200'
           )}
         >
-          {isSelected ? 'Selected' : 'Unselected'}
+          {statusLabel ?? (isSelected ? 'Selected' : 'Unselected')}
         </span>
 
         {/* Checkbox */}
-        <button
-          type="button"
-          role="checkbox"
-          aria-checked={isSelected}
-          onClick={onToggleSelection}
-          className={cn(
-            'rounded-md size-8 flex items-center justify-center transition-colors duration-150',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
-            isSelected
-              ? 'bg-info text-white hover:bg-info/90'
-              : 'bg-neutral-100 border border-neutral-200 hover:bg-neutral-200'
-          )}
-          aria-label={isSelected ? 'Deselect stock' : 'Select stock'}
-        >
-          {isSelected && <Check className="size-5" aria-hidden="true" />}
-        </button>
+        {showCheckbox ? (
+          <button
+            type="button"
+            role="checkbox"
+            aria-checked={isSelected}
+            onClick={disabled ? undefined : onToggleSelection}
+            className={cn(
+              'rounded-md size-8 flex items-center justify-center transition-colors duration-150',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+              disabled && 'cursor-not-allowed opacity-60',
+              isSelected
+                ? 'bg-info text-white hover:bg-info/90'
+                : 'bg-neutral-100 border border-neutral-200 hover:bg-neutral-200'
+            )}
+            aria-label={isSelected ? 'Deselect stock' : 'Select stock'}
+            aria-disabled={disabled}
+            disabled={disabled}
+          >
+            {isSelected && <Check className="size-5" aria-hidden="true" />}
+          </button>
+        ) : null}
       </div>
     </div>
   );

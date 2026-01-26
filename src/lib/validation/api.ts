@@ -7,7 +7,7 @@
 import { z } from 'zod';
 
 /**
- * Schema for POST /api/analysis/start
+ * Schema for POST /api/sector/start
  * Validates sector name input
  */
 export const startAnalysisSchema = z.object({
@@ -19,3 +19,13 @@ export const startAnalysisSchema = z.object({
 });
 
 export type StartAnalysisInput = z.infer<typeof startAnalysisSchema>;
+
+/**
+ * Schema for POST /api/subsector/[id]/approve
+ * Allows optionally specifying which stocks (max 5) to analyze.
+ */
+export const approveSubSectorSchema = z.object({
+  selectedStockIds: z.array(z.string().min(1)).max(5).optional(),
+});
+
+export type ApproveSubSectorInput = z.infer<typeof approveSubSectorSchema>;

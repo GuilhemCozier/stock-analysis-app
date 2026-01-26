@@ -47,10 +47,7 @@ export function StockReportSummary({
   duration,
   onReadReport,
 }: StockReportSummaryProps) {
-  // Calculate 5-year conservative ROI percentage
-  const roiPercentage = Math.round(
-    ((conservative5yTarget - priceAtAnalysis) / priceAtAnalysis) * 100
-  );
+  const isResearchComplete = /research\s+complete/i.test(researchStatus);
 
   return (
     <div className="space-y-6">
@@ -59,28 +56,40 @@ export function StockReportSummary({
         #{rank} {companyName}
       </h1>
 
-      {/* Metrics row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* 5 Year Conservative ROI box */}
-        <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-5 md:p-6">
-          <div className="font-sans text-sm font-medium text-neutral-600 text-center">
-            5 Year Conservative ROI
-          </div>
-          <div className="font-serif text-3xl font-semibold leading-tight text-neutral-900 text-center mt-2">
-            {roiPercentage}%
-          </div>
-        </div>
+      {isResearchComplete && (
+        <>
+          {/* Metrics row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* 5 Year Conservative ROI box */}
+            <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-5 md:p-6">
+              <div className="font-sans text-sm font-medium text-neutral-600 text-center">
+                5 Year Conservative ROI
+              </div>
+              <div className="font-serif text-3xl font-semibold leading-tight text-neutral-900 text-center mt-2">
+                {(() => {
+                  const safePriceAtAnalysis =
+                    typeof priceAtAnalysis === 'number' && priceAtAnalysis > 0 ? priceAtAnalysis : null;
+                  if (safePriceAtAnalysis === null) return '—';
+                  const roiPercentage = Math.round(
+                    ((conservative5yTarget - safePriceAtAnalysis) / safePriceAtAnalysis) * 100
+                  );
+                  return `${roiPercentage}%`;
+                })()}
+              </div>
+            </div>
 
-        {/* Current Price Action box */}
-        <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-5 md:p-6">
-          <div className="font-sans text-sm font-medium text-neutral-600 text-center">
-            Current Price Action
+            {/* Current Price Action box */}
+            <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-5 md:p-6">
+              <div className="font-sans text-sm font-medium text-neutral-600 text-center">
+                Current Price Action
+              </div>
+              <div className="font-serif text-3xl font-semibold leading-tight text-neutral-900 text-center mt-2">
+                {actionAtAnalysis}
+              </div>
+            </div>
           </div>
-          <div className="font-serif text-3xl font-semibold leading-tight text-neutral-900 text-center mt-2">
-            {actionAtAnalysis}
-          </div>
-        </div>
-      </div>
+        </>
+      )}
 
       {/* ResearchStatus component */}
       <ResearchStatus
@@ -89,14 +98,18 @@ export function StockReportSummary({
         duration={duration}
       />
 
-      {/* Read Full Report button */}
-      <Button
-        variant="outline"
-        onClick={onReadReport}
-        className="w-full md:w-auto"
-      >
-        Read Full Report
-      </Button>
+      {isResearchComplete && (
+        <>
+          {/* Read Full Report button */}
+          <Button
+            variant="outline"
+            onClick={onReadReport}
+            className="w-full md:w-auto"
+          >
+            Read Full Report
+          </Button>
+        </>
+      )}
     </div>
   );
 }
