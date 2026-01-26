@@ -20,12 +20,13 @@ interface SectorAnalysisData {
   id: string;
   sectorName: string;
   status: string;
+  summary: string | null;  // AI-generated executive summary
   fullReport: string;
   subSectors: Array<{
     id: string;
     name: string;
-    summary: string;
-    longDescription?: string;
+    shortDescription: string | null;  // One-line description
+    summary: string;  // Full 2-3 paragraph description
     status: string;
     stocks: Array<{
       id: string;
@@ -370,8 +371,8 @@ export default function SectorAnalysisPage({
         rank: analysisData.subSectors.indexOf(subSector) + 1,
         name: subSector.name,
         stockCount: subSector.stocks.length,
-        description: subSector.summary,
-        longDescription: subSector.longDescription,
+        description: subSector.shortDescription || subSector.name, // One-line description
+        longDescription: subSector.summary, // Full 2-3 paragraph description
         status: statusMap[subSector.status] || 'pending',
         progress: relatedJob?.progress,
       };
@@ -452,9 +453,9 @@ export default function SectorAnalysisPage({
             <SectorReportSummary
               title={analysisData.sectorName}
               summary={
-                analysisData.fullReport || 
-                (analysisData.status === 'in_progress' 
-                  ? 'Analysis in progress. Sub-sectors are being identified...' 
+                analysisData.summary ||
+                (analysisData.status === 'in_progress'
+                  ? 'Analysis in progress. Sub-sectors are being identified...'
                   : 'No summary available.')
               }
               onReadFullReport={handleReadFullReport}

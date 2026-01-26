@@ -19,6 +19,7 @@ model SectorAnalysis {
   sectorName    String
   status        String
 
+  summary       String?  @db.Text  // AI-generated executive summary (2-3 sentences)
   fullReport    String   @db.Text
 
   subSectors    SubSector[]
@@ -33,7 +34,8 @@ model SubSector {
   sectorAnalysis    SectorAnalysis @relation(fields: [sectorAnalysisId], references: [id])
 
   name              String
-  summary           String   @db.Text
+  shortDescription  String?           // One-line description for UI
+  summary           String   @db.Text // Full 2-3 paragraph description
   status            String
 
   stocks            Stock[]

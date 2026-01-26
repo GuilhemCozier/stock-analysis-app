@@ -50,15 +50,16 @@ Focus your research on companies where you can find:
 
 You should aim to identify companies worth deep analysis, not conduct deep analysis yet.
 
-1. **Identify 4-8 distinct sub-sectors** within ${sectorName}
+1. **Identify the most relevant sub-sectors** within ${sectorName}
    - Focus on sub-sectors with strong growth drivers
    - Consider current market trends and future catalysts
+   - Include as many or as few sub-sectors as genuinely merit analysis
 
 2. **For each sub-sector:**
    - Write a 2-3 paragraph overview explaining the investment opportunity
-   - Research and identify 5-15 companies with high growth potential
+   - Research and identify the most promising companies with high growth potential
    - Provide preliminary analysis for each company (1-2 paragraphs)
-   - Rank companies 1-10 based on overall investment potential
+   - Rank companies by overall investment potential
 
 3. **Research current as of ${new Date().getFullYear()}:**
    - Use web search to find recent news, financial data, and industry trends
@@ -67,25 +68,31 @@ You should aim to identify companies worth deep analysis, not conduct deep analy
 
 ## Output Format
 
-For each sub-sector, use this exact structure:
+Start with an executive summary, then detail each sub-sector:
+
+---
+## Executive Summary
+
+[2-3 sentence high-level overview of the ${sectorName} sector's investment landscape and key themes]
 
 ---
 ## Sub-sector: [Name]
+**Headline:** [One sentence description of this sub-sector's investment opportunity]
 
-[2-3 paragraph overview of the sub-sector opportunity]
+[2-3 paragraph detailed overview of the sub-sector opportunity]
 
 **Key Trends:**
 - [Trend 1]
 - [Trend 2]
 - [Trend 3]
 
-### Rank 1/10: [Company Name] ([Ticker if public])
+### Rank 1: [Company Name] ([Ticker if public])
 [1-2 paragraph preliminary analysis covering: business model, competitive position, growth drivers, and why it ranks #1]
 
-### Rank 2/10: [Company Name]
+### Rank 2: [Company Name]
 [Analysis...]
 
-[Continue for all companies, ranked 1-10]
+[Continue for all ranked companies]
 ---
 
 ## Important Guidelines
@@ -98,12 +105,12 @@ For each sub-sector, use this exact structure:
 
 ## Output Completeness
 
-For each sub-sector, you must provide:
-- 2-3 paragraph overview (minimum 200 words)
-- 5-15 companies ranked 1-10
-- Each company: 1-2 substantive paragraphs (minimum 100 words each)
+For each sub-sector, provide:
+- 2-3 paragraph overview
+- Companies ranked by investment potential (include only those that genuinely merit consideration)
+- Each company: 1-2 substantive paragraphs
 
-Do not artificially extend or compress your analysis. Write what's needed to be thorough.`;
+Do not artificially extend or compress your analysis. Include only sub-sectors and companies that genuinely merit consideration for long-term investment.`;
 }
 
 /**
