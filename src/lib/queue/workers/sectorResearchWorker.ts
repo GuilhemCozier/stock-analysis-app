@@ -1,6 +1,7 @@
 import { Worker, Job } from 'bullmq';
 import { prisma } from '@/lib/db/prisma';
 import { SectorResearchJobData } from '../types';
+import { createWorkerConnection } from '../config';
 import {
   markJobActive,
   markJobCompleted,
@@ -118,17 +119,12 @@ async function processSectorResearch(job: Job<SectorResearchJobData>) {
   }
 }
 
-// Create worker
-const redisConnection = {
-  host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
-};
-
+// Create worker with shared Redis connection
 export const sectorResearchWorker = new Worker<SectorResearchJobData>(
   'sector-research',
   processSectorResearch,
   {
-    connection: redisConnection,
+    connection: createWorkerConnection(),
     concurrency: 2, // Process 2 sector research jobs in parallel max
     limiter: {
       max: 5, // Max 5 jobs

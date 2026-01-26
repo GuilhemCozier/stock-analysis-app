@@ -8,7 +8,7 @@ import {
   updateJobProgress,
 } from '../jobStatus';
 import { classifyError, formatErrorMessage } from '../errorHandling';
-import { formatInsightsQueue, stockAnalysisQueue } from '../config';
+import { formatInsightsQueue, stockAnalysisQueue, createWorkerConnection } from '../config';
 
 const MAX_RETRY_ATTEMPTS = 3;
 
@@ -160,17 +160,12 @@ async function processJudgeReview(job: Job<JudgeReviewJobData>) {
   }
 }
 
-// Create worker
-const redisConnection = {
-  host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
-};
-
+// Create worker with shared Redis connection
 export const judgeReviewWorker = new Worker<JudgeReviewJobData>(
   'judge-review',
   processJudgeReview,
   {
-    connection: redisConnection,
+    connection: createWorkerConnection(),
     concurrency: 10, // Process many judge reviews in parallel (faster than analysis)
     limiter: {
       max: 20, // Max 20 jobs

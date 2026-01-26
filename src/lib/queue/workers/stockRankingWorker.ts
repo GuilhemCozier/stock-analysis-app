@@ -8,7 +8,7 @@ import {
   updateJobProgress,
 } from '../jobStatus';
 import { classifyError, formatErrorMessage } from '../errorHandling';
-import { stockAnalysisQueue } from '../config';
+import { stockAnalysisQueue, createWorkerConnection } from '../config';
 
 /**
  * Process stock ranking job
@@ -147,17 +147,12 @@ async function processStockRanking(job: Job<StockRankingJobData>) {
   }
 }
 
-// Create worker
-const redisConnection = {
-  host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
-};
-
+// Create worker with shared Redis connection
 export const stockRankingWorker = new Worker<StockRankingJobData>(
   'stock-ranking',
   processStockRanking,
   {
-    connection: redisConnection,
+    connection: createWorkerConnection(),
     concurrency: 3, // Process a few ranking jobs in parallel
     limiter: {
       max: 5, // Max 5 jobs

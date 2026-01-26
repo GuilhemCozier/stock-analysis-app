@@ -14,6 +14,15 @@ const redisConnection = new Redis(process.env.REDIS_URL || 'redis://localhost:63
   enableReadyCheck: false,
 });
 
+// Shared Redis connection options for workers
+// Workers need maxRetriesPerRequest: null for BullMQ compatibility
+export function createWorkerConnection() {
+  return new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
+    maxRetriesPerRequest: null,
+    enableReadyCheck: false,
+  });
+}
+
 // Common queue options
 const baseQueueOptions: QueueOptions = {
   connection: redisConnection,

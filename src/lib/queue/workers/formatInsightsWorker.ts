@@ -8,6 +8,7 @@ import {
   updateJobProgress,
 } from '../jobStatus';
 import { classifyError, formatErrorMessage } from '../errorHandling';
+import { createWorkerConnection } from '../config';
 
 interface FormattedInsights {
   recommendation: 'Strong Buy' | 'Buy' | 'Hold' | 'Sell' | 'Strong Sell';
@@ -162,17 +163,12 @@ async function processFormatInsights(job: Job<FormatInsightsJobData>) {
   }
 }
 
-// Create worker
-const redisConnection = {
-  host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
-};
-
+// Create worker with shared Redis connection
 export const formatInsightsWorker = new Worker<FormatInsightsJobData>(
   'format-insights',
   processFormatInsights,
   {
-    connection: redisConnection,
+    connection: createWorkerConnection(),
     concurrency: 10, // Process many formatting jobs in parallel
     limiter: {
       max: 20, // Max 20 jobs

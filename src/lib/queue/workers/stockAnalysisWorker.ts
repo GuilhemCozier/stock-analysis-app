@@ -8,7 +8,7 @@ import {
   updateJobProgress,
 } from '../jobStatus';
 import { classifyError, formatErrorMessage } from '../errorHandling';
-import { judgeReviewQueue } from '../config';
+import { judgeReviewQueue, createWorkerConnection } from '../config';
 
 /**
  * Process stock analysis job
@@ -132,17 +132,12 @@ In production, this would be a comprehensive 7-10 page report including:
   }
 }
 
-// Create worker
-const redisConnection = {
-  host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
-};
-
+// Create worker with shared Redis connection
 export const stockAnalysisWorker = new Worker<StockAnalysisJobData>(
   'stock-analysis',
   processStockAnalysis,
   {
-    connection: redisConnection,
+    connection: createWorkerConnection(),
     concurrency: 5, // Process up to 5 stock analyses in parallel
     limiter: {
       max: 10, // Max 10 jobs
